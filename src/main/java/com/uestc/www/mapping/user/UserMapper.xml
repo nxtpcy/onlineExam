@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uestc.www.dao.user.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.uestc.www.pojo.user.User" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="CHAR" />
+    <result column="user_num" property="userNum" jdbcType="CHAR" />
+    <result column="user_name" property="userName" jdbcType="CHAR" />
+    <result column="user_dept_id" property="userDeptId" jdbcType="CHAR" />
+    <result column="user_age" property="userAge" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="telephone" property="telephone" jdbcType="CHAR" />
+    <result column="email" property="email" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, user_id, user_num, user_name, user_dept_id, user_age, status, telephone, email, 
+    create_time, modify_time
+  </sql>
+  
+  <select id="queryRows" parameterType="com.uestc.www.common.QueryBase"
+		resultType="Long">
+		select count(*) from user_info
+		<where>
+			<if test="parameters.userId != null">
+				user_id = #{userId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.userNum != null">
+				user_num like
+				CONCAT(CONCAT('%',#{parameters.userNum,jdbcType=CHAR}),'%')
+			</if>
+			<if test="parameters.userName != null">
+				user_name like
+				CONCAT(CONCAT('%',#{parameters.userName,jdbcType=CHAR}),'%')
+			</if>
+			<if test="parameters.userDeptId != null">
+				user_dept_id = #{parameters.userDeptId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.userAge != null">
+				user_age = #{parameters.userAge,jdbcType=INTEGER}
+			</if>
+			<if test="parameters.status != null">
+				status = #{parameters.status,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_info
+    where user_id = #{userId,jdbcType=CHAR}
+  </select>
+  
+  <select id="selectBySelective" parameterType="com.uestc.www.common.QueryBase"
+		resultMap="BaseResultMap">
+		select * from user_info
+		<where>
+			<if test="parameters.userId != null">
+				user_id = #{userId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.userNum != null">
+				user_num like
+				CONCAT(CONCAT('%',#{parameters.userNum,jdbcType=CHAR}),'%')
+			</if>
+			<if test="parameters.userName != null">
+				user_name like
+				CONCAT(CONCAT('%',#{parameters.userName,jdbcType=CHAR}),'%')
+			</if>
+			<if test="parameters.userDeptId != null">
+				user_dept_id = #{parameters.userDeptId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.userAge != null">
+				user_age = #{parameters.userAge,jdbcType=INTEGER}
+			</if>
+			<if test="parameters.status != null">
+				status = #{parameters.status,jdbcType=INTEGER}
+			</if>
+		</where>
+		<if test="firstRow != null and pageSize != null">
+			limit #{firstRow},#{pageSize}
+		</if>
+   </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.uestc.www.pojo.user.User" >
+    insert into user_info (id, user_id, user_num, 
+      user_name, user_dept_id, user_age, 
+      status, telephone, email, 
+      create_time, modify_time)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=CHAR}, #{userNum,jdbcType=CHAR}, 
+      #{userName,jdbcType=CHAR}, #{userDeptId,jdbcType=CHAR}, #{userAge,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{telephone,jdbcType=CHAR}, #{email,jdbcType=CHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.uestc.www.pojo.user.User" >
+    insert into user_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userNum != null" >
+        user_num,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="userDeptId != null" >
+        user_dept_id,
+      </if>
+      <if test="userAge != null" >
+        user_age,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="telephone != null" >
+        telephone,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=CHAR},
+      </if>
+      <if test="userNum != null" >
+        #{userNum,jdbcType=CHAR},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=CHAR},
+      </if>
+      <if test="userDeptId != null" >
+        #{userDeptId,jdbcType=CHAR},
+      </if>
+      <if test="userAge != null" >
+        #{userAge,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="telephone != null" >
+        #{telephone,jdbcType=CHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.uestc.www.pojo.user.User" >
+    update user_info
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=CHAR},
+      </if>
+      <if test="userNum != null" >
+        user_num = #{userNum,jdbcType=CHAR},
+      </if>
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=CHAR},
+      </if>
+      <if test="userDeptId != null" >
+        user_dept_id = #{userDeptId,jdbcType=CHAR},
+      </if>
+      <if test="userAge != null" >
+        user_age = #{userAge,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="telephone != null" >
+        telephone = #{telephone,jdbcType=CHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByUserIdSelective" parameterType="com.uestc.www.pojo.user.User" >
+    update user_info
+    <set >
+      <if test="userNum != null" >
+        user_num = #{userNum,jdbcType=CHAR},
+      </if>
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=CHAR},
+      </if>
+      <if test="userDeptId != null" >
+        user_dept_id = #{userDeptId,jdbcType=CHAR},
+      </if>
+      <if test="userAge != null" >
+        user_age = #{userAge,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="telephone != null" >
+        telephone = #{telephone,jdbcType=CHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where user_id = #{userId,jdbcType=CHAR}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.uestc.www.pojo.user.User" >
+    update user_info
+    set user_id = #{userId,jdbcType=CHAR},
+      user_num = #{userNum,jdbcType=CHAR},
+      user_name = #{userName,jdbcType=CHAR},
+      user_dept_id = #{userDeptId,jdbcType=CHAR},
+      user_age = #{userAge,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      telephone = #{telephone,jdbcType=CHAR},
+      email = #{email,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

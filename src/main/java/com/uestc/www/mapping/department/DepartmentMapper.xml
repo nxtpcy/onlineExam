@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uestc.www.dao.department.DepartmentMapper">
+	<resultMap id="BaseResultMap" type="com.uestc.www.pojo.department.Department">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="dept_id" property="deptId" jdbcType="CHAR" />
+		<result column="dept_name" property="deptName" jdbcType="CHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, dept_id, dept_name, create_time, modify_time
+	</sql>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from admin_department
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectByDeptId" resultMap="BaseResultMap"
+		parameterType="String">
+		select
+		<include refid="Base_Column_List" />
+		from admin_department
+		where dept_id = #{deptId,jdbcType=CHAR}
+	</select>
+
+	<select id="queryRows" parameterType="com.uestc.www.common.QueryBase"
+		resultType="Long">
+		select count(*) from admin_department
+		<where>
+			<if test="parameters.deptId != null">
+				dept_id = #{parameters.deptId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.deptName != null">
+				dept_name like
+				CONCAT(CONCAT('%',#{parameters.deptName,jdbcType=CHAR}),'%')
+			</if>
+		</where>
+	</select>
+
+	<select id="selectBySelective" resultMap="BaseResultMap"
+		parameterType="com.uestc.www.common.QueryBase">
+		select
+		<include refid="Base_Column_List" />
+		from admin_department
+		<where>
+			<if test="parameters.deptId != null">
+				dept_id = #{parameters.deptId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.deptName != null">
+				dept_name like
+				CONCAT(CONCAT('%',#{parameters.deptName,jdbcType=CHAR}),'%')
+			</if>
+		</where>
+		<if test="firstRow != null and pageSize != null">
+			limit #{firstRow},#{pageSize}
+		</if>
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		admin_department
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<delete id="deleteByDeptId" parameterType="String">
+		delete from
+		admin_department
+		where dept_id = #{deptId,jdbcType=CHAR}
+	</delete>
+
+	<insert id="insert" parameterType="com.uestc.www.pojo.department.Department">
+		insert into admin_department
+		(id, dept_id, dept_name,
+		create_time, modify_time)
+		values
+		(#{id,jdbcType=INTEGER}, #{deptId,jdbcType=CHAR},
+		#{deptName,jdbcType=CHAR},
+		#{createTime,jdbcType=TIMESTAMP},
+		#{modifyTime,jdbcType=TIMESTAMP})
+	</insert>
+
+	<insert id="insertSelective" parameterType="com.uestc.www.pojo.department.Department">
+		insert into admin_department
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="deptId != null">
+				dept_id,
+			</if>
+			<if test="deptName != null">
+				dept_name,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="modifyTime != null">
+				modify_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="deptId != null">
+				#{deptId,jdbcType=CHAR},
+			</if>
+			<if test="deptName != null">
+				#{deptName,jdbcType=CHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifyTime != null">
+				#{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="com.uestc.www.pojo.department.Department">
+		update admin_department
+		<set>
+			<if test="deptId != null">
+				dept_id = #{deptId,jdbcType=CHAR},
+			</if>
+			<if test="deptName != null">
+				dept_name = #{deptName,jdbcType=CHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifyTime != null">
+				modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateByDeptIdSelective" parameterType="com.uestc.www.pojo.department.Department">
+		update admin_department
+		<set>
+			<if test="deptName != null">
+				dept_name = #{deptName,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifyTime != null">
+				modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where dept_id = #{deptId,jdbcType=CHAR}
+	</update>
+	
+	<update id="updateByPrimaryKey" parameterType="com.uestc.www.pojo.department.Department">
+		update
+		admin_department
+		set dept_id = #{deptId,jdbcType=CHAR},
+		dept_name =
+		#{deptName,jdbcType=CHAR},
+		create_time =
+		#{createTime,jdbcType=TIMESTAMP},
+		modify_time =
+		#{modifyTime,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

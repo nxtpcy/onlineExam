@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uestc.www.dao.ExamTestpaperMapper">
+  <resultMap id="BaseResultMap" type="com.uestc.www.pojo.exam.ExamTestpaper">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="testpaper_id" jdbcType="CHAR" property="testpaperId" />
+    <result column="testpaper_name" jdbcType="CHAR" property="testpaperName" />
+    <result column="total_score" jdbcType="INTEGER" property="totalScore" />
+    <result column="subject_id" jdbcType="CHAR" property="subjectId" />
+    <result column="subject_name" jdbcType="CHAR" property="subjectName" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="state" jdbcType="TINYINT" property="state" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, testpaper_id, testpaper_name, total_score, subject_id, subject_name, start_time, 
+    end_time, state, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from exam_testpaper
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByTestpaperId" parameterType="String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from exam_testpaper
+    where testpaper_id = #{testpaperId,jdbcType=CHAR}
+  </select>
+  
+  <!-- 按试卷名精确查询  -->
+  <select id="selectByTestpaperNameAccurate" parameterType="String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from exam_testpaper
+    where testpaper_name = #{testpaperName,jdbcType=CHAR}
+  </select>
+  
+  <!-- 根据查询条件获取查询获得的数据量 -->
+	<select id="size" parameterType="Map" resultType="Long">
+		select count(*) from exam_testpaper
+		<where>
+			
+			<if test="subjectId != null and subjectId != ''">
+				AND subject_id = 
+				#{subjectId,jdbcType=CHAR}
+			</if>
+			<if test="testpaperId != null and testpaperId != ''">
+				AND testpaper_id = 
+				#{testpaperId,jdbcType=CHAR}
+			</if>
+			<if test="testpaperName != null and testpaperName != ''">
+				AND testpaper_name like
+				CONCAT(CONCAT('%',
+				#{testpaperName,jdbcType=CHAR}),'%')
+			</if>
+			<if test="state != null">
+				AND state =
+				#{state,jdbcType=TINYINT}
+			</if>
+			
+		</where>
+	</select>
+	
+	<!-- 分页查询获取试卷信息  -->
+	<select id="selectByPageAndSelections" parameterType="com.uestc.www.common.QueryBase"
+		resultMap="BaseResultMap">
+		select * from exam_testpaper
+		<where>
+			
+			<if test="parameters.subjectId != null and parameters.subjectId != ''">
+				AND subject_id = 
+				#{parameters.subjectId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.testpaperId != null and parameters.testpaperId != ''">
+				AND testpaper_id = 
+				#{parameters.testpaperId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.testpaperName != null and parameters.testpaperName != ''">
+				AND testpaper_name like
+				CONCAT(CONCAT('%',
+				#{parameters.testpaperName,jdbcType=CHAR}),'%')
+			</if>
+			<if test="parameters.state != null">
+				AND state =
+				#{parameters.state,jdbcType=TINYINT}
+			</if>
+			
+		</where>
+		<if test="firstRow != null and pageSize != null">
+			limit #{firstRow},#{pageSize}
+		</if>
+	</select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from exam_testpaper
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByTestpaperId" parameterType="String">
+    delete from exam_testpaper
+    where testpaper_id = #{testpaperId,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.uestc.www.pojo.exam.ExamTestpaper">
+    insert into exam_testpaper (id, testpaper_id, testpaper_name, 
+      total_score, subject_id, subject_name, 
+      start_time, end_time, state, 
+      create_time, update_time)
+    values (#{id,jdbcType=INTEGER}, #{testpaperId,jdbcType=CHAR}, #{testpaperName,jdbcType=CHAR}, 
+      #{totalScore,jdbcType=INTEGER}, #{subjectId,jdbcType=CHAR}, #{subjectName,jdbcType=CHAR}, 
+      #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{state,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.uestc.www.pojo.exam.ExamTestpaper">
+    insert into exam_testpaper
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="testpaperId != null">
+        testpaper_id,
+      </if>
+      <if test="testpaperName != null">
+        testpaper_name,
+      </if>
+      <if test="totalScore != null">
+        total_score,
+      </if>
+      <if test="subjectId != null">
+        subject_id,
+      </if>
+      <if test="subjectName != null">
+        subject_name,
+      </if>
+      <if test="startTime != null">
+        start_time,
+      </if>
+      <if test="endTime != null">
+        end_time,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="testpaperId != null">
+        #{testpaperId,jdbcType=CHAR},
+      </if>
+      <if test="testpaperName != null">
+        #{testpaperName,jdbcType=CHAR},
+      </if>
+      <if test="totalScore != null">
+        #{totalScore,jdbcType=INTEGER},
+      </if>
+      <if test="subjectId != null">
+        #{subjectId,jdbcType=CHAR},
+      </if>
+      <if test="subjectName != null">
+        #{subjectName,jdbcType=CHAR},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.uestc.www.pojo.exam.ExamTestpaper">
+    update exam_testpaper
+    <set>
+      <if test="testpaperId != null">
+        testpaper_id = #{testpaperId,jdbcType=CHAR},
+      </if>
+      <if test="testpaperName != null">
+        testpaper_name = #{testpaperName,jdbcType=CHAR},
+      </if>
+      <if test="totalScore != null">
+        total_score = #{totalScore,jdbcType=INTEGER},
+      </if>
+      <if test="subjectId != null">
+        subject_id = #{subjectId,jdbcType=CHAR},
+      </if>
+      <if test="subjectName != null">
+        subject_name = #{subjectName,jdbcType=CHAR},
+      </if>
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByTestpaperIdSelective" parameterType="com.uestc.www.pojo.exam.ExamTestpaper">
+    update exam_testpaper
+    <set>
+     
+      <if test="testpaperName != null">
+        testpaper_name = #{testpaperName,jdbcType=CHAR},
+      </if>
+      
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where testpaper_id = #{testpaperId,jdbcType=CHAR}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.uestc.www.pojo.exam.ExamTestpaper">
+    update exam_testpaper
+    set testpaper_id = #{testpaperId,jdbcType=CHAR},
+      testpaper_name = #{testpaperName,jdbcType=CHAR},
+      total_score = #{totalScore,jdbcType=INTEGER},
+      subject_id = #{subjectId,jdbcType=CHAR},
+      subject_name = #{subjectName,jdbcType=CHAR},
+      start_time = #{startTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      state = #{state,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

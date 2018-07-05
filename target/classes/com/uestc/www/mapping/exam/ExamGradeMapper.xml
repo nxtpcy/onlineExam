@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uestc.www.dao.ExamGradeMapper" >
+  <resultMap id="BaseResultMap" type="com.uestc.www.pojo.exam.ExamGrade" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="stu_id" property="stuId" jdbcType="CHAR" />
+    <result column="testpaper_id" property="testpaperId" jdbcType="CHAR" />
+    <result column="grade" property="grade" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap id="GradeTestpaperInfoResultMap" type="com.uestc.www.pojo.dto.exam.GradeDTO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="stu_id" property="stuId" jdbcType="CHAR" />
+    <result column="testpaper_id" property="testpaperId" jdbcType="CHAR" />
+    <result column="testpaper_name" property="testpaperName" jdbcType="CHAR" />
+    <result column="total_score" property="totalScore" jdbcType="INTEGER" />
+    <result column="subject_id" property="subjectId" jdbcType="CHAR" />
+    <result column="subject_name" property="subjectName" jdbcType="CHAR" />
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+  	<result column="grade" property="stuGrade" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <resultMap id="GradeUserInfoResultMap" type="com.uestc.www.pojo.dto.exam.AdminGradeDTO" extends="GradeTestpaperInfoResultMap">
+  	<result column="user_id" property="userId" jdbcType="CHAR" />
+    <result column="user_name" property="userName" jdbcType="CHAR" />
+    <result column="user_dept_id" property="userDeptId" jdbcType="CHAR" />
+    <result column="dept_name" property="userDeptName" jdbcType="CHAR" />
+    <result column="user_age" property="userAge" jdbcType="INTEGER" />
+    <result column="telephone" property="telephone" jdbcType="CHAR" />
+    <result column="email" property="email" jdbcType="CHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, stu_id, testpaper_id, grade, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_grade
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据查询条件获取查询获得的数据量  -->
+	<select id="size" parameterType="Map" resultType="Long">
+		select count(*) from exam_grade
+		<where>
+			<if test="stuId != null and stuId != ''">
+				AND stu_id = 
+				#{stuId,jdbcType=CHAR}
+			</if>
+			<if test="testpaperId != null and testpaperId != ''">
+				AND testpaper_id = 
+				#{testpaperId,jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 分页按条件查询获取成绩信息  -->
+	<select id="selectByPageAndSelections" parameterType="com.uestc.www.common.QueryBase"
+		resultMap="BaseResultMap">
+		select * from exam_grade
+		<where>
+			<if test="parameters.stuId != null and parameters.stuId != ''">
+				AND stu_id = 
+				#{parameters.stuId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.testpaperId != null and parameters.testpaperId != ''">
+				AND testpaper_id = 
+				#{parameters.testpaperId,jdbcType=CHAR}
+			</if>
+		</where>
+		<if test="firstRow != null and pageSize != null">
+		  	limit #{firstRow},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 该接口供学生查询成绩使用，所以不用联合查询出个人信息     -->
+	<!-- 可选查询条件：学号或试卷号 （可以分页）   -->
+	<!-- 根据试卷号内连接试卷表将对应考试的基本信息一起查出，如本场考试的总分、起止时间、试卷名等    -->
+  	<select id="selectGradeAndTestpaperInfoByPageSelective" resultMap="GradeTestpaperInfoResultMap" parameterType="com.uestc.www.common.QueryBase" >
+    	select g.id, g.stu_id, g.testpaper_id, g.grade, t.testpaper_name, t.total_score, 
+    	t.subject_id, t.subject_name, t.start_time, t.end_time 
+    	from exam_grade g 
+    	INNER JOIN exam_testpaper t on g.testpaper_id = t.testpaper_id 
+    	<where>
+			<if test="parameters.stuId != null and parameters.stuId != ''">
+				AND g.stu_id = 
+				#{parameters.stuId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.testpaperId != null and parameters.testpaperId != ''">
+				AND g.testpaper_id = 
+				#{parameters.testpaperId,jdbcType=CHAR}
+			</if>
+		</where>
+    	<if test="firstRow != null and pageSize != null">
+		  	limit #{firstRow},#{pageSize}
+		</if>
+  	</select>
+  	
+  	<!-- 查成绩信息及试卷信息时将用户基本个人信息一并查出，管理员需使用该接口   -->
+  	<!-- 可选查询条件：学号或试卷号 （可以分页）   -->
+	<!-- 根据试卷号内连接试卷表将对应考试的基本信息一起查出，如本场考试的总分、起止时间、试卷名等    -->
+  	<select id="selectGradeAndUserInfoByPageSelective" resultMap="GradeUserInfoResultMap" parameterType="com.uestc.www.common.QueryBase" >
+    	select g.id, g.stu_id, g.testpaper_id, g.grade, t.testpaper_name, t.total_score, 
+    	t.subject_id, t.subject_name, t.start_time, t.end_time, u.user_id, u.user_name, 
+    	u.user_dept_id, u.user_age, u.telephone, u.email, d.dept_name
+    	from exam_grade g 
+    	INNER JOIN exam_testpaper t on g.testpaper_id = t.testpaper_id 
+    	INNER JOIN user_info u on g.stu_id = u.user_num
+    	INNER JOIN admin_department d on u.user_dept_id = d.dept_id
+    	<where>
+			<if test="parameters.stuId != null and parameters.stuId != ''">
+				AND g.stu_id = 
+				#{parameters.stuId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.testpaperId != null and parameters.testpaperId != ''">
+				AND g.testpaper_id = 
+				#{parameters.testpaperId,jdbcType=CHAR}
+			</if>
+		</where>
+    	<if test="firstRow != null and pageSize != null">
+		  	limit #{firstRow},#{pageSize}
+		</if>
+  	</select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from exam_grade
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.uestc.www.pojo.exam.ExamGrade" >
+    insert into exam_grade (id, stu_id, 
+      testpaper_id, grade, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{stuId,jdbcType=CHAR}, 
+      #{testpaperId,jdbcType=CHAR}, #{grade,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.uestc.www.pojo.exam.ExamGrade" >
+    insert into exam_grade
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      
+      <if test="stuId != null" >
+        stu_id,
+      </if>
+      <if test="testpaperId != null" >
+        testpaper_id,
+      </if>
+      <if test="grade != null" >
+        grade,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      
+      <if test="stuId != null" >
+        #{stuId,jdbcType=CHAR},
+      </if>
+      <if test="testpaperId != null" >
+        #{testpaperId,jdbcType=CHAR},
+      </if>
+      <if test="grade != null" >
+        #{grade,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.uestc.www.pojo.exam.ExamGrade" >
+    update exam_grade
+    <set >
+      
+      <if test="stuId != null" >
+        stu_id = #{stuId,jdbcType=CHAR},
+      </if>
+      <if test="testpaperId != null" >
+        testpaper_id = #{testpaperId,jdbcType=CHAR},
+      </if>
+      <if test="grade != null" >
+        grade = #{grade,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 根据学号和试卷号更新某学生某份试卷的成绩   -->
+  <update id="updateByStuIdAndTestpaperIdSelective" parameterType="com.uestc.www.pojo.exam.ExamGrade" >
+    update exam_grade
+    <set>
+      <if test="grade != null" >
+        grade = #{grade,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <where>
+			<if test="stuId != null and stuId != ''">
+				AND stu_id =
+				#{stuId,jdbcType=CHAR}
+			</if>
+			<if test="testpaperId != null and testpaperId != ''">
+				AND testpaper_id =
+				#{testpaperId,jdbcType=CHAR}
+			</if>
+	</where>
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.uestc.www.pojo.exam.ExamGrade" >
+    update exam_grade
+    set stu_id = #{stuId,jdbcType=CHAR},
+      testpaper_id = #{testpaperId,jdbcType=CHAR},
+      grade = #{grade,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uestc.www.dao.ExamRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.uestc.www.pojo.exam.ExamRecord" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="stu_id" property="stuId" jdbcType="CHAR" />
+    <result column="question_id" property="questionId" jdbcType="CHAR" />
+    <result column="testpaper_id" property="testpaperId" jdbcType="CHAR" />
+    <result column="stu_answer" property="stuAnswer" jdbcType="CHAR" />
+    <result column="stu_score" property="stuScore" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap id="ChoiceRecordResultMap" type="com.uestc.www.pojo.dto.exam.ChoiceQuestionRecordDTO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="question_id" property="questionId" jdbcType="CHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="option_a" property="optionA" jdbcType="VARCHAR" />
+    <result column="option_b" property="optionB" jdbcType="VARCHAR" />
+    <result column="option_c" property="optionC" jdbcType="VARCHAR" />
+    <result column="option_d" property="optionD" jdbcType="VARCHAR" />
+    <result column="question_type" property="questionType" jdbcType="TINYINT" />
+    <result column="answer" property="correctAnswer" jdbcType="CHAR" />
+    <result column="stu_answer" property="stuAnswer" jdbcType="CHAR" />
+    <result column="score" property="questionScore" jdbcType="INTEGER" />
+    <result column="stu_score" property="stuScore" jdbcType="INTEGER" />
+    <result column="analysis" property="analysis" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="JudgeRecordResultMap" type="com.uestc.www.pojo.dto.exam.JudgeQuestionRecordDTO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="question_id" property="questionId" jdbcType="CHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="true_option" property="trueOption" jdbcType="VARCHAR" />
+    <result column="false_option" property="falseOption" jdbcType="VARCHAR" />
+    <result column="question_type" property="questionType" jdbcType="TINYINT" />
+    <result column="answer" property="correctAnswer" jdbcType="CHAR" />
+    <result column="stu_answer" property="stuAnswer" jdbcType="CHAR" />
+    <result column="score" property="questionScore" jdbcType="INTEGER" />
+    <result column="stu_score" property="stuScore" jdbcType="INTEGER" />
+    <result column="analysis" property="analysis" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, stu_id, question_id, testpaper_id, stu_answer, stu_score, create_time, 
+    update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_record
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 分页 按学号、试卷号、题号查询学生答题记录  各字段均可选   -->
+  <select id="selectByPageAndSelections" resultMap="BaseResultMap" parameterType="com.uestc.www.common.QueryBase" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_record
+    <where>
+			<if test="parameters.stuId != null and parameters.stuId != ''">
+				AND stu_id =
+				#{parameters.stuId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.testpaperId != null and parameters.testpaperId != ''">
+				AND testpaper_id =
+				#{parameters.testpaperId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.questionId != null and parameters.questionId != ''">
+				AND question_id =
+				#{parameters.questionId,jdbcType=CHAR}
+			</if>
+	</where>
+	<if test="firstRow != null and pageSize != null">
+		limit #{firstRow},#{pageSize}
+	</if>
+  </select>
+  
+  
+  <!-- 根据查询条件获取查询获得的数据量 -->
+	<select id="size" parameterType="Map" resultType="Long">
+		select count(*) from exam_record
+		<where>
+			<if test="stuId != null and stuId != ''">
+				AND stu_id =
+				#{stuId,jdbcType=CHAR}
+			</if>
+			<if test="testpaperId != null and testpaperId != ''">
+				AND testpaper_id =
+				#{testpaperId,jdbcType=CHAR}
+			</if>
+			<if test="questionId != null and questionId != ''">
+				AND question_id =
+				#{questionId,jdbcType=CHAR}
+			</if>
+		</where>
+	</select>		
+	
+	<!--分页根据学号和试卷号查出对应的判断题及学生作答记录    -->
+  	<select id="selectJudgeAndRecordByPageAndStuIdAndTestpaperId" resultMap="JudgeRecordResultMap" parameterType="com.uestc.www.common.QueryBase" >
+    	select r.id, r.question_id, r.stu_answer, r.stu_score, 
+    	j.content, j.true_option, j.false_option, j.question_type, j.answer, j.score, j.analysis 
+    	from exam_record r INNER JOIN exam_judge_question j on r.question_id = j.question_id 
+    	WHERE r.testpaper_id = #{parameters.testpaperId,jdbcType=CHAR} 
+    	and r.stu_id = #{parameters.stuId,jdbcType=CHAR}
+    	and r.question_id like "jq%"
+    	<if test="firstRow != null and pageSize != null">
+			limit #{firstRow},#{pageSize}
+		</if>
+  	</select>
+  	
+  	<!--分页根据学号和试卷号查出对应的选择题及学生作答记录        -->
+  	<select id="selectChoiceAndRecordByPageAndStuIdAndTestpaperId" resultMap="ChoiceRecordResultMap" parameterType="com.uestc.www.common.QueryBase" >
+    	select r.id, r.question_id, r.stu_answer, r.stu_score, 
+    	c.content, c.option_a, c.option_b, c.option_c, c.option_d, c.question_type, c.answer, c.score, c.analysis 
+    	from exam_record r INNER JOIN exam_chioce_question c on r.question_id = c.question_id 
+    	WHERE r.testpaper_id = #{parameters.testpaperId,jdbcType=CHAR} 
+    	and r.stu_id = #{parameters.stuId,jdbcType=CHAR}
+    	and r.question_id like "cq%"
+    	<if test="firstRow != null and pageSize != null">
+			limit #{firstRow},#{pageSize}
+		</if>
+  	</select>
+	
+  <delete id="deleteByStuIdAndTestpaperId" parameterType="Map" >
+    delete from exam_record
+    <where>
+			<if test="stuId != null and stuId != ''">
+				AND stu_id =
+				#{stuId,jdbcType=CHAR}
+			</if>
+			<if test="testpaperId != null and testpaperId != ''">
+				AND testpaper_id =
+				#{testpaperId,jdbcType=CHAR}
+			</if>
+			
+		</where>
+  </delete>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from exam_record
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.uestc.www.pojo.exam.ExamRecord" >
+    insert into exam_record (id, stu_id, 
+      question_id, testpaper_id, stu_answer, 
+      stu_score, create_time, update_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{stuId,jdbcType=CHAR}, 
+      #{questionId,jdbcType=CHAR}, #{testpaperId,jdbcType=CHAR}, #{stuAnswer,jdbcType=CHAR}, 
+      #{stuScore,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.uestc.www.pojo.exam.ExamRecord" >
+    insert into exam_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      
+      <if test="stuId != null" >
+        stu_id,
+      </if>
+      <if test="questionId != null" >
+        question_id,
+      </if>
+      <if test="testpaperId != null" >
+        testpaper_id,
+      </if>
+      <if test="stuAnswer != null" >
+        stu_answer,
+      </if>
+      <if test="stuScore != null" >
+        stu_score,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+     
+      <if test="stuId != null" >
+        #{stuId,jdbcType=CHAR},
+      </if>
+      <if test="questionId != null" >
+        #{questionId,jdbcType=CHAR},
+      </if>
+      <if test="testpaperId != null" >
+        #{testpaperId,jdbcType=CHAR},
+      </if>
+      <if test="stuAnswer != null" >
+        #{stuAnswer,jdbcType=CHAR},
+      </if>
+      <if test="stuScore != null" >
+        #{stuScore,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <update id="updateByStuIdAndTestpaperIdAndQuestionIdSelective" parameterType="com.uestc.www.pojo.exam.ExamRecord" >
+    update exam_record
+    <set>
+      <if test="stuAnswer != null" >
+        stu_answer = #{stuAnswer,jdbcType=CHAR},
+      </if>
+      <if test="stuScore != null" >
+        stu_score = #{stuScore,jdbcType=INTEGER},
+      </if>
+      
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <where>
+		<if test="stuId != null and stuId != ''">
+			AND stu_id =
+			#{stuId,jdbcType=CHAR}
+		</if>
+		<if test="testpaperId != null and testpaperId != ''">
+			AND testpaper_id =
+			#{testpaperId,jdbcType=CHAR}
+		</if>
+		<if test="questionId != null and questionId != ''">
+			AND question_id =
+			#{questionId,jdbcType=CHAR}
+		</if>
+	</where>
+  </update>
+  
+  
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.uestc.www.pojo.exam.ExamRecord" >
+    update exam_record
+    <set >
+      
+      <if test="stuId != null" >
+        stu_id = #{stuId,jdbcType=CHAR},
+      </if>
+      <if test="questionId != null" >
+        question_id = #{questionId,jdbcType=CHAR},
+      </if>
+      <if test="testpaperId != null" >
+        testpaper_id = #{testpaperId,jdbcType=CHAR},
+      </if>
+      <if test="stuAnswer != null" >
+        stu_answer = #{stuAnswer,jdbcType=CHAR},
+      </if>
+      <if test="stuScore != null" >
+        stu_score = #{stuScore,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.uestc.www.pojo.exam.ExamRecord" >
+    update exam_record
+    set stu_id = #{stuId,jdbcType=CHAR},
+      question_id = #{questionId,jdbcType=CHAR},
+      testpaper_id = #{testpaperId,jdbcType=CHAR},
+      stu_answer = #{stuAnswer,jdbcType=CHAR},
+      stu_score = #{stuScore,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

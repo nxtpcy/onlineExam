@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uestc.www.dao.article.ArticleTypeMapper">
+	<resultMap id="BaseResultMap" type="com.uestc.www.pojo.article.ArticleType">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="article_type_id" property="articleTypeId"
+			jdbcType="CHAR" />
+		<result column="article_type_name" property="articleTypeName"
+			jdbcType="CHAR" />
+		<result column="article_type_describe" property="articleTypeDescribe"
+			jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, article_type_id, article_type_name,
+		article_type_describe,
+		create_time, modify_time
+	</sql>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from admin_article_type
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectByArticleTypeId" resultMap="BaseResultMap"
+		parameterType="String">
+		select
+		<include refid="Base_Column_List" />
+		from admin_article_type
+		where article_type_id =
+		#{articleTypeId,jdbcType=CHAR}
+	</select>
+
+	<select id="queryRows" parameterType="com.uestc.www.common.QueryBase"
+		resultType="Long">
+		select count(*) from admin_article_type
+		<where>
+			<if test="parameters.articleTypeId != null">
+				article_type_id =
+				#{parameters.articleTypeId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.articleTypeName != null">
+				article_type_name like
+				CONCAT(CONCAT('%',#{parameters.articleTypeName,jdbcType=CHAR}),'%')
+			</if>
+		</where>
+	</select>
+
+	<select id="selectBySelective" resultMap="BaseResultMap"
+		parameterType="com.uestc.www.common.QueryBase">
+		select
+		<include refid="Base_Column_List" />
+		from admin_article_type
+		<where>
+			<if test="parameters.articleTypeId != null">
+				article_type_id =
+				#{parameters.articleTypeId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.articleTypeName != null">
+				article_type_name like
+				CONCAT(CONCAT('%',#{parameters.articleTypeName,jdbcType=CHAR}),'%')
+			</if>
+		</where>
+		<if test="firstRow != null and pageSize != null">
+			limit #{firstRow},#{pageSize}
+		</if>
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		admin_article_type
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<delete id="deleteByArticleTypeId" parameterType="String">
+		delete from
+		admin_article_type
+		where article_type_id =
+		#{articleTypeId,jdbcType=INTEGER}
+	</delete>
+
+	<insert id="insert" parameterType="com.uestc.www.pojo.article.ArticleType">
+		insert into admin_article_type
+		(id, article_type_id,
+		article_type_name,
+		article_type_describe,
+		create_time, modify_time
+		)
+		values (#{id,jdbcType=INTEGER},
+		#{articleTypeId,jdbcType=CHAR},
+		#{articleTypeName,jdbcType=CHAR},
+		#{articleTypeDescribe,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+	<insert id="insertSelective" parameterType="com.uestc.www.pojo.article.ArticleType">
+		insert into admin_article_type
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="articleTypeId != null">
+				article_type_id,
+			</if>
+			<if test="articleTypeName != null">
+				article_type_name,
+			</if>
+			<if test="articleTypeDescribe != null">
+				article_type_describe,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="modifyTime != null">
+				modify_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="articleTypeId != null">
+				#{articleTypeId,jdbcType=CHAR},
+			</if>
+			<if test="articleTypeName != null">
+				#{articleTypeName,jdbcType=CHAR},
+			</if>
+			<if test="articleTypeDescribe != null">
+				#{articleTypeDescribe,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifyTime != null">
+				#{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="updateByPrimaryKeySelective" parameterType="com.uestc.www.pojo.article.ArticleType">
+		update admin_article_type
+		<set>
+			<if test="articleTypeId != null">
+				article_type_id = #{articleTypeId,jdbcType=CHAR},
+			</if>
+			<if test="articleTypeName != null">
+				article_type_name = #{articleTypeName,jdbcType=CHAR},
+			</if>
+			<if test="articleTypeDescribe != null">
+				article_type_describe =
+				#{articleTypeDescribe,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifyTime != null">
+				modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<update id="updateByArticleTypeIdSelective" parameterType="com.uestc.www.pojo.article.ArticleType">
+		update admin_article_type
+		<set>
+			<if test="articleTypeId != null">
+				article_type_id = #{articleTypeId,jdbcType=CHAR},
+			</if>
+			<if test="articleTypeName != null">
+				article_type_name = #{articleTypeName,jdbcType=CHAR},
+			</if>
+			<if test="articleTypeDescribe != null">
+				article_type_describe =
+				#{articleTypeDescribe,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifyTime != null">
+				modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where article_type_id = #{articleTypeId,jdbcType=CHAR}
+	</update>
+
+	<update id="updateByPrimaryKey" parameterType="com.uestc.www.pojo.article.ArticleType">
+		update
+		admin_article_type
+		set article_type_id =
+		#{articleTypeId,jdbcType=CHAR},
+		article_type_name =
+		#{articleTypeName,jdbcType=CHAR},
+		article_type_describe =
+		#{articleTypeDescribe,jdbcType=VARCHAR},
+		create_time =
+		#{createTime,jdbcType=TIMESTAMP},
+		modify_time =
+		#{modifyTime,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

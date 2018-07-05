@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uestc.www.dao.ExamSubjectMapper" >
+  <resultMap id="BaseResultMap" type="com.uestc.www.pojo.exam.ExamSubject" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="subject_id" property="subjectId" jdbcType="CHAR" />
+    <result column="subject_name" property="subjectName" jdbcType="CHAR" />
+    <result column="state" property="state" jdbcType="TINYINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, subject_id, subject_name, state, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_subject
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectBySubjectId" resultMap="BaseResultMap" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_subject
+    where subject_id = #{subjectId,jdbcType=CHAR}
+  </select>
+  
+  <select id="selectBySubjectName" resultMap="BaseResultMap" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_subject
+    where subject_name like
+				CONCAT(CONCAT('%',
+				#{subjectName,jdbcType=CHAR}),'%')
+  </select>
+  
+  <!-- 按科目名称精确匹配   -->
+  <select id="selectBySubjectNameAccurate" resultMap="BaseResultMap" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_subject
+    where subject_name =
+				#{subjectName,jdbcType=CHAR}
+  </select>
+  
+  <!-- 根据查询条件获取查询获得的数据量 -->
+	<select id="size" parameterType="Map" resultType="Long">
+		select count(*) from exam_subject
+		<where>
+			
+			<if test="subjectId != null and subjectId != ''">
+				AND subject_id = 
+				#{subjectId,jdbcType=CHAR}
+			</if>
+			<if test="subjectName != null and subjectName != ''">
+				AND subject_name like
+				CONCAT(CONCAT('%',
+				#{subjectName,jdbcType=CHAR}),'%')
+			</if>
+			<if test="state != null">
+				AND state =
+				#{state,jdbcType=TINYINT}
+			</if>
+			
+		</where>
+	</select>
+	
+	<!-- 分页查询获取科目信息 -->
+	<select id="selectByPageAndSelections" parameterType="com.uestc.www.common.QueryBase"
+		resultMap="BaseResultMap">
+		select * from exam_subject
+		<where>
+			
+			<if test="parameters.subjectId != null and parameters.subjectId != ''">
+				AND subject_id = 
+				#{parameters.subjectId,jdbcType=CHAR}
+			</if>
+			<if test="parameters.subjectName != null and parameters.subjectName != ''">
+				AND subject_name like
+				CONCAT(CONCAT('%',
+				#{parameters.subjectName,jdbcType=CHAR}),'%')
+			</if>
+			<if test="parameters.state != null">
+				AND state =
+				#{parameters.state,jdbcType=TINYINT}
+			</if>
+		</where>
+		order by subject_id
+		limit #{firstRow},#{pageSize}
+	</select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from exam_subject
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <delete id="deleteBySubjectId" parameterType="String" >
+    delete from exam_subject
+    where subject_id = #{subjectId,jdbcType=CHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.uestc.www.pojo.exam.ExamSubject" >
+    insert into exam_subject (id, subject_id, subject_name, 
+      state, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{subjectId,jdbcType=CHAR}, #{subjectName,jdbcType=CHAR}, 
+      #{state,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.uestc.www.pojo.exam.ExamSubject" >
+    insert into exam_subject
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="subjectId != null" >
+        subject_id,
+      </if>
+      <if test="subjectName != null" >
+        subject_name,
+      </if>
+      
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="subjectId != null" >
+        #{subjectId,jdbcType=CHAR},
+      </if>
+      <if test="subjectName != null" >
+        #{subjectName,jdbcType=CHAR},
+      </if>
+      
+      <if test="state != null" >
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.uestc.www.pojo.exam.ExamSubject" >
+    update exam_subject
+    <set >
+      <if test="subjectId != null" >
+        subject_id = #{subjectId,jdbcType=CHAR},
+      </if>
+      <if test="subjectName != null" >
+        subject_name = #{subjectName,jdbcType=CHAR},
+      </if>
+      
+      <if test="state != null" >
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateBySubjectIdSelective" parameterType="com.uestc.www.pojo.exam.ExamSubject" >
+    update exam_subject
+    <set >
+       
+      <if test="state != null" >
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where subject_id = #{subjectId,jdbcType=CHAR}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.uestc.www.pojo.exam.ExamSubject" >
+    update exam_subject
+    set subject_id = #{subjectId,jdbcType=CHAR},
+      subject_name = #{subjectName,jdbcType=CHAR},
+      state = #{state,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

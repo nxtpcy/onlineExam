@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.uestc.www.dao.ExamQuestionMappingMapper" >
+  <resultMap id="BaseResultMap" type="com.uestc.www.pojo.exam.ExamQuestionMapping" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="question_id" property="questionId" jdbcType="CHAR" />
+    <result column="testpaper_id" property="testpaperId" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap id="JudgeQuestionMap" type="com.uestc.www.pojo.dto.exam.JudgeQuestionDTO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="testpaper_id" property="testpaperId" jdbcType="CHAR" />
+    <result column="question_id" property="questionId" jdbcType="CHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="true_option" property="trueOption" jdbcType="VARCHAR" />
+    <result column="false_option" property="falseOption" jdbcType="VARCHAR" />
+    <result column="question_type" property="questionType" jdbcType="TINYINT" />
+    <result column="answer" property="answer" jdbcType="CHAR" />
+    <result column="score" property="score" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <resultMap id="ChoiceQuestionMap" type="com.uestc.www.pojo.dto.exam.ChoiceQuestionDTO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="testpaper_id" property="testpaperId" jdbcType="CHAR" />
+    <result column="question_id" property="questionId" jdbcType="CHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="option_a" property="optionA" jdbcType="VARCHAR" />
+    <result column="option_b" property="optionB" jdbcType="VARCHAR" />
+    <result column="option_c" property="optionC" jdbcType="VARCHAR" />
+    <result column="option_d" property="optionD" jdbcType="VARCHAR" />
+    <result column="question_type" property="questionType" jdbcType="TINYINT" />
+    <result column="answer" property="answer" jdbcType="CHAR" />
+    <result column="score" property="score" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, question_id, testpaper_id, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_question_mapping
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByTestpaperId" resultMap="BaseResultMap" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam_question_mapping
+    where testpaper_id = #{testpaperId,jdbcType=CHAR}
+  </select>
+  
+  <!-- 根据试卷题目对应关系查出对应的判断题   -->
+  <select id="selectJudgeQuestionByMapping" resultMap="JudgeQuestionMap" parameterType="String" >
+    select m.id, m.testpaper_id, m.question_id, j.content, j.true_option, j.false_option, 
+    j.question_type, j.answer, j.score from exam_question_mapping m INNER JOIN exam_judge_question j on m.question_id = j.question_id 
+    WHERE m.testpaper_id = #{testpaperId,jdbcType=CHAR} and m.question_id like "JQ%"
+  </select>
+  
+  <!-- 根据试卷题目对应关系查出对应的选择题   -->
+  <select id="selectChoiceQuestionByMapping" resultMap="ChoiceQuestionMap" parameterType="String" >
+    select m.id, m.testpaper_id, m.question_id, c.content, c.option_a, c.option_b, 
+    c.option_c, c.option_d,
+    c.question_type, c.answer, c.score from exam_question_mapping m 
+    INNER JOIN exam_chioce_question c on m.question_id = c.question_id 
+    WHERE m.testpaper_id = #{testpaperId,jdbcType=CHAR} and m.question_id like "CQ%"
+  </select>
+  
+  <!-- 根据查询条件获取查询获得的数据量 -->
+	<select id="size" parameterType="Map" resultType="Long">
+		select count(*) from exam_question_mapping
+		<where>
+			<if test="testpaperId != null and testpaperId != ''">
+				AND testpaper_id = 
+				#{testpaperId,jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	
+  <!-- 根据题号查出试卷号，也即查出有哪些试卷中包含了该题目   -->
+  <select id="selectTestpaperIdByQuestionId" parameterType="String" resultType="String">
+		select distinct testpaper_id from exam_question_mapping
+		where question_id = #{questionId,jdbcType=CHAR}
+	</select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from exam_question_mapping
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <delete id="deleteByTestpaperId" parameterType="String" >
+    delete from exam_question_mapping
+    where testpaper_id = #{testpaperId,jdbcType=CHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.uestc.www.pojo.exam.ExamQuestionMapping" >
+    insert into exam_question_mapping (id, question_id, testpaper_id, 
+      create_time, update_time)
+    values (#{id,jdbcType=INTEGER}, #{questionId,jdbcType=CHAR}, #{testpaperId,jdbcType=CHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.uestc.www.pojo.exam.ExamQuestionMapping" >
+    insert into exam_question_mapping
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="questionId != null" >
+        question_id,
+      </if>
+      <if test="testpaperId != null" >
+        testpaper_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="questionId != null" >
+        #{questionId,jdbcType=CHAR},
+      </if>
+      <if test="testpaperId != null" >
+        #{testpaperId,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.uestc.www.pojo.exam.ExamQuestionMapping" >
+    update exam_question_mapping
+    <set >
+      <if test="questionId != null" >
+        question_id = #{questionId,jdbcType=CHAR},
+      </if>
+      <if test="testpaperId != null" >
+        testpaper_id = #{testpaperId,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.uestc.www.pojo.exam.ExamQuestionMapping" >
+    update exam_question_mapping
+    set question_id = #{questionId,jdbcType=CHAR},
+      testpaper_id = #{testpaperId,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
