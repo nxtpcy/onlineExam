@@ -3,6 +3,7 @@ package com.uestc.www.pojo.article;
 import java.util.Date;
 
 public class Article {
+	
     private Integer id;
 
     private String articleId;
