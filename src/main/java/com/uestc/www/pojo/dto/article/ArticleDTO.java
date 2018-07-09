@@ -1,9 +1,9 @@
-package com.uestc.www.pojo.article;
+package com.uestc.www.pojo.dto.article;
 
 import java.util.Date;
 
-public class Article {
-	
+public class ArticleDTO {
+
     private Integer id;
 
     private String articleId;
@@ -11,14 +11,6 @@ public class Article {
     private String articleType;
 
     private String articleTitle;
-
-    private String articleContent;
-
-    private String authorDeptId;
-
-    private String author;
-
-    private Integer status;
 
     private Date createTime;
 
@@ -54,38 +46,6 @@ public class Article {
 
     public void setArticleTitle(String articleTitle) {
         this.articleTitle = articleTitle == null ? null : articleTitle.trim();
-    }
-
-    public String getArticleContent() {
-        return articleContent;
-    }
-
-    public void setArticleContent(String articleContent) {
-        this.articleContent = articleContent == null ? null : articleContent.trim();
-    }
-
-    public String getAuthorDeptId() {
-        return authorDeptId;
-    }
-
-    public void setAuthorDeptId(String authorDeptId) {
-        this.authorDeptId = authorDeptId == null ? null : authorDeptId.trim();
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author == null ? null : author.trim();
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public Date getCreateTime() {
