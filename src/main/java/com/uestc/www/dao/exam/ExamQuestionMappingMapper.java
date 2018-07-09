@@ -30,4 +30,6 @@ public interface ExamQuestionMappingMapper {
     List<JudgeQuestionDTO> selectJudgeQuestionByMapping(String testpaperId);
     
     List<String> selectTestpaperIdByQuestionId(String questionId);
+    
+    int batchDelete(Map<String, Object> map);
 }

@@ -95,6 +95,24 @@
     where testpaper_id = #{testpaperId,jdbcType=CHAR}
   </delete>
   
+  <delete id="batchDelete" parameterType="Map">
+		delete from
+		exam_question_mapping 
+		<where>
+			<if test="testpaperId != null and testpaperId != ''">
+				AND testpaper_id = 
+				#{testpaperId,jdbcType=CHAR}
+			</if>
+			<if test="questionId != null">
+				AND question_id in
+				<foreach item="item" index="index" collection="questionId" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+  
   <insert id="insert" parameterType="com.uestc.www.pojo.exam.ExamQuestionMapping" >
     insert into exam_question_mapping (id, question_id, testpaper_id, 
       create_time, update_time)

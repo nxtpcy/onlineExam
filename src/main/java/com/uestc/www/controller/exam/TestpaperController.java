@@ -20,6 +20,7 @@ import com.uestc.www.common.Response;
 import com.uestc.www.common.StatusType;
 import com.uestc.www.pojo.dto.exam.TestpaperDTO;
 import com.uestc.www.pojo.exam.ExamTestpaper;
+import com.uestc.www.service.exam.MappingService;
 import com.uestc.www.service.exam.TestpaperService;
 
 @Controller
@@ -32,7 +33,10 @@ public class TestpaperController {  //试卷状态state为0表示未发布,  1�
 	@Autowired
 	private TestpaperService testpaperService;
 	
-
+	@Autowired
+	private MappingService mappingService;
+	
+	
 	/**
 	 * 按试卷id，试卷名，科目id，状态查询试卷（带分页，各查询字段均可选  ）
 	 * 
@@ -66,7 +70,7 @@ public class TestpaperController {  //试卷状态state为0表示未发布,  1�
 	}
 	
 	
-	@RequestMapping(value = "add", method = RequestMethod.POST)
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody //方法返回值的Java对象可通过HttpMessageConverter转换为HttpOutputMessage，进而转为一个response返回给客户端 （body里是json对象的形式 ）
 	public Object add(HttpServletRequest request, HttpServletResponse response,
 			@RequestBody  TestpaperDTO testpaperDTO) {
@@ -86,7 +90,7 @@ public class TestpaperController {  //试卷状态state为0表示未发布,  1�
 	}
 	
 	// 更新试卷名称、状态、开始考试时间、结束考试时间等字段
-	@RequestMapping(value = "update", method = RequestMethod.POST)
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Object update(HttpServletRequest request,
 			HttpServletResponse response, @RequestBody ExamTestpaper examTestpaper) {
@@ -106,61 +110,94 @@ public class TestpaperController {  //试卷状态state为0表示未发布,  1�
 	}
 	
 	//  只能对还未发布的试卷进行题目组成关系的变动，如向该试卷再添加题目或删除题目，注意同时要更新试卷总分  
-	// 是一次性传所有新的题号，还是分成向试卷添加题目和删除题目两个操作来完成？
+	// 批量删除未发布试卷上的题目，传试卷号以及要删除的题号
+	@RequestMapping(value = "/batchDeleteUnpublished", method = RequestMethod.POST)
+	@ResponseBody
+	public Object batchDeleteUnpublished(HttpServletRequest request,
+			HttpServletResponse response, @RequestBody Map<String, Object> map) {
+		try {
+			
+			int status = mappingService.batchDelete(map);
+			String message = StatusType.value(status).getMessage();
+			return new Response(status, message);
+		} catch (Exception e) {
+			// TODO: handle exception
+			logger.error(
+					"调用TestpaperController.batchDeleteUnpublished出错,map={},error={}",
+					new Object[] { map, e });
+			return new Response(StatusType.EXCEPTION.getValue(),
+					StatusType.EXCEPTION.getMessage());
+		}
+	}
+	
+	// 批量添加选择题 
+	@RequestMapping(value = "/batchAddChoiceUnpublished", method = RequestMethod.POST)
+	@ResponseBody
+	public Object batchAddChoiceUnpublished(HttpServletRequest request,
+			HttpServletResponse response, @RequestBody Map<String, Object> map) {
+		try {
+			
+			int status = mappingService.batchAddChoice(map);
+			String message = StatusType.value(status).getMessage();
+			return new Response(status, message);
+		} catch (Exception e) {
+			// TODO: handle exception
+			logger.error(
+					"调用TestpaperController.batchAddChoiceUnpublished出错,map={},error={}",
+					new Object[] { map, e });
+			return new Response(StatusType.EXCEPTION.getValue(),
+					StatusType.EXCEPTION.getMessage());
+		}
+	}
+	
+	// 批量添加判断题 
+	@RequestMapping(value = "/batchAddJudgeUnpublished", method = RequestMethod.POST)
+	@ResponseBody
+	public Object batchAddJudgeUnpublished(HttpServletRequest request,
+			HttpServletResponse response, @RequestBody Map<String, Object> map) {
+		try {
+			
+			int status = mappingService.batchAddJudge(map);
+			String message = StatusType.value(status).getMessage();
+			return new Response(status, message);
+		} catch (Exception e) {
+			// TODO: handle exception
+			logger.error(
+					"调用TestpaperController.batchAddJudgeUnpublished出错,map={},error={}",
+					new Object[] { map, e });
+			return new Response(StatusType.EXCEPTION.getValue(),
+					StatusType.EXCEPTION.getMessage());
+		}
+	}
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	// 查询出未发布试卷上的所有题目，分页，方便后续老师批量删除该套未发布试卷的某些题目
+	@RequestMapping(value = "/selectQuestionByUnpublishedTestpaperId", method = RequestMethod.POST)
+	@ResponseBody
+	public Object selectQuestionByUnpublishedTestpaperId(HttpServletRequest request, 
+			HttpServletResponse response, @RequestBody Map<String, Object> map) {
+		try {
+			QueryBase queryBase = new QueryBase();
+			queryBase.addParameter("testpaperId", map.get("testpaperId"));
+			queryBase.setPageSize(Long.parseLong(map.get("rows").toString()));
+			queryBase
+					.setCurrentPage(Long.parseLong(map.get("page").toString()));
+			mappingService.selectQuestionByUnpublishedTestpaperId(queryBase);
+			
+			HashMap<String, Object> result = new HashMap<String, Object>();
+			result.put("total", queryBase.getTotalRow());
+			result.put("rows", queryBase.getResultMap());
+			return result;
+		} catch (Exception e) {
+			// TODO: handle exception
+			logger.error("调用TestpaperController.selectQuestionByUnpublishedTestpaperId出错,map={},error={}",
+					new Object[] { map, e });
+			return new Response(StatusType.EXCEPTION.getValue(),
+					StatusType.EXCEPTION.getMessage());
+		}
+		
+	}
 	
 	
 }

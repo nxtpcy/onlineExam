@@ -12,8 +12,22 @@ public class ExamQuestionMapping {
     private Date createTime;
 
     private Date updateTime;
+    
 
-    public Integer getId() {
+    public ExamQuestionMapping(String questionId, String testpaperId, Date createTime, Date updateTime) {
+		super();
+		this.questionId = questionId;
+		this.testpaperId = testpaperId;
+		this.createTime = createTime;
+		this.updateTime = updateTime;
+	}
+
+	public ExamQuestionMapping() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Integer getId() {
         return id;
     }
 
